@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -43,7 +42,10 @@ app.use('/api/projects', require('./routes/projectRoutes'));
 app.use('/api/content', require('./routes/contentRoutes'));
 app.use('/api/sites', require('./routes/sitesRoutes'));
 app.use('/api/posting', require('./routes/postingRoutes'));
+app.use('/api/auto-posting', require('./routes/autoPostingRoutes')); // ✅ NEW
 app.use('/api/reports', require('./routes/reportRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes')); // ✅ NEW
+app.use('/api/image-pool', require('./routes/imagePoolRoutes')); // ✅ NEW
 
 // 404 handler
 app.use((req, res) => {

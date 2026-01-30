@@ -1,5 +1,3 @@
-
-
 const mongoose = require('mongoose');
 const { 
   PROJECT_STATUS, 
@@ -35,7 +33,6 @@ const projectSchema = new mongoose.Schema({
   
   // Content Generation Rules
   contentRules: {
-    // Keyword Settings
     keywordsPerArticle: {
       type: Number,
       default: 3,
@@ -46,15 +43,11 @@ const projectSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     },
-    
-    // Content Mood/Tone
     contentMood: {
       type: String,
       enum: Object.values(CONTENT_MOODS),
       default: CONTENT_MOODS.INFORMATIONAL
     },
-    
-    // Content Structure
     wordsPerParagraph: {
       type: Number,
       default: 100,
@@ -70,8 +63,6 @@ const projectSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     },
-    
-    // Language & Title
     language: {
       type: String,
       default: 'english'
@@ -81,15 +72,11 @@ const projectSchema = new mongoose.Schema({
       enum: Object.values(TITLE_LENGTHS),
       default: TITLE_LENGTHS.MEDIUM
     },
-    
-    // Content Source
     contentSource: {
       type: String,
       enum: Object.values(CONTENT_SOURCES),
       default: CONTENT_SOURCES.MIXED
     },
-    
-    // Formatting Options
     formatting: {
       useBulletPoints: {
         type: Boolean,
@@ -116,8 +103,6 @@ const projectSchema = new mongoose.Schema({
         default: false
       }
     },
-    
-    // Brand/Domain Settings
     brandSettings: {
       includeBrand: {
         type: Boolean,
@@ -132,12 +117,61 @@ const projectSchema = new mongoose.Schema({
         trim: true
       }
     },
-    
-    // Additional AI Instructions
     customInstructions: {
       type: String,
       trim: true,
       maxlength: [1000, 'Custom instructions cannot exceed 1000 characters']
+    }
+  },
+  
+  // ✅ NEW: Project Form Data (for auto-posting)
+  projectForm: {
+    basics: {
+      email: String,
+      website: String,
+      category: String,
+      phone: String,
+      address: String,
+      city: String,
+      state: String,
+      country: String,
+      zipCode: String
+    },
+    business: {
+      businessName: String,
+      tagline: String,
+      description: String,
+      latitude: String,
+      longitude: String,
+      whatsapp: String,
+      claimedSection: {
+        type: String,
+        enum: ['claimed', 'not_claimed'],
+        default: 'not_claimed'
+      },
+      youtube: String
+    },
+    social: {
+      facebook: String,
+      twitter: String,
+      linkedin: String,
+      instagram: String,
+      pinterest: String,
+      yelp: String,
+      googleBusiness: String
+    },
+    media: {
+      logo: String,
+      images: [String],
+      homePageImages: [String]
+    },
+    tags: {
+      mode: {
+        type: String,
+        enum: ['auto', 'manual'],
+        default: 'auto'
+      },
+      tags: [String]
     }
   },
   
@@ -163,6 +197,14 @@ const projectSchema = new mongoose.Schema({
   
   // Excel file reference
   excelFile: {
+    originalName: String,
+    filename: String,
+    path: String,
+    uploadedAt: Date
+  },
+  
+  // ✅ NEW: Project Form Excel
+  projectFormFile: {
     originalName: String,
     filename: String,
     path: String,
@@ -224,6 +266,7 @@ projectSchema.methods.getSummary = function() {
     description: this.description,
     status: this.status,
     stats: this.stats,
+    hasProjectForm: !!this.projectForm?.basics?.email,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt
   };

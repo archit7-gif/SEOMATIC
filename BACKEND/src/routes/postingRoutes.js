@@ -1,55 +1,113 @@
-
-
 const express = require('express');
 const router = express.Router();
-const PostingController = require('../controllers/postingController');
+const ProjectController = require('../controllers/projectController');
 const { protect } = require('../middlewares/auth');
 const Validator = require('../middlewares/validator');
 const asyncHandler = require('../middlewares/asyncHandler');
+const upload = require('../config/multer');
 
-// All routes require authentication
+/**
+ * All routes require authentication
+ */
 router.use(protect);
 
-// Publish single content to site
+/**
+ * Project CRUD Operations
+ */
+
+// Create project
 router.post(
-  '/publish-single',
-  Validator.requireFields(['contentId', 'siteId']),
-  asyncHandler(PostingController.publishSingle)
+  '/',
+  Validator.requireFields(['name']),
+  asyncHandler(ProjectController.createProject)
 );
 
-// Publish bulk (multiple content to multiple sites)
-router.post(
-  '/publish-bulk',
-  Validator.requireFields(['contentIds', 'siteIds']),
-  asyncHandler(PostingController.publishBulk)
-);
-
-// Auto-publish project (smart matching)
-router.post(
-  '/auto-publish',
-  Validator.requireFields(['projectId']),
-  asyncHandler(PostingController.autoPublish)
-);
-
-// Get publish results
+// Get all projects
 router.get(
-  '/results/:projectId',
-  Validator.validateObjectId('projectId'),
-  asyncHandler(PostingController.getResults)
+  '/',
+  asyncHandler(ProjectController.getProjects)
 );
 
-// Get publishing stats
+// Get single project
 router.get(
-  '/stats/:projectId',
-  Validator.validateObjectId('projectId'),
-  asyncHandler(PostingController.getStats)
+  '/:id',
+  Validator.validateObjectId('id'),
+  asyncHandler(ProjectController.getProject)
 );
 
-// Retry failed publications
+// Update project
+router.put(
+  '/:id',
+  Validator.validateObjectId('id'),
+  asyncHandler(ProjectController.updateProject)
+);
+
+// Delete project
+router.delete(
+  '/:id',
+  Validator.validateObjectId('id'),
+  asyncHandler(ProjectController.deleteProject)
+);
+
+/**
+ * ✅ NEW: Project Form Operations
+ */
+
+// Upload project form Excel
 router.post(
-  '/retry',
-  Validator.requireFields(['projectId']),
-  asyncHandler(PostingController.retryFailed)
+  '/:id/upload-form',
+  Validator.validateObjectId('id'),
+  upload.single('file'),
+  Validator.validateFileUpload(['xlsx', 'xls', 'csv']),
+  asyncHandler(ProjectController.uploadProjectForm)
+);
+
+// Update project form manually
+router.put(
+  '/:id/form',
+  Validator.validateObjectId('id'),
+  Validator.requireFields(['projectForm']),
+  asyncHandler(ProjectController.updateProjectForm)
+);
+
+// Get project form
+router.get(
+  '/:id/form',
+  Validator.validateObjectId('id'),
+  asyncHandler(ProjectController.getProjectForm)
+);
+
+/**
+ * Project-specific operations
+ */
+
+// Get project statistics
+router.get(
+  '/:id/stats',
+  Validator.validateObjectId('id'),
+  asyncHandler(ProjectController.getProjectStats)
+);
+
+// Update content rules
+router.put(
+  '/:id/rules',
+  Validator.validateObjectId('id'),
+  Validator.requireFields(['contentRules']),
+  asyncHandler(ProjectController.updateContentRules)
+);
+
+// Get project content
+router.get(
+  '/:id/content',
+  Validator.validateObjectId('id'),
+  asyncHandler(ProjectController.getProjectContent)
+);
+
+// Duplicate project
+router.post(
+  '/:id/duplicate',
+  Validator.validateObjectId('id'),
+  asyncHandler(ProjectController.duplicateProject)
 );
 
 module.exports = router;
